@@ -1,3 +1,5 @@
+-- 연결된 DateBase에서 모든 테이블 출력
+select * from tab;
 
 /*
     Oracle의 다양한 함수 사용하기
