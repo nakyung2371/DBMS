@@ -233,6 +233,184 @@ on e.dno = d.dno
 where job = 'MANAGER'
 order by ename desc;
 
+-- VIEW(뷰): 가상의 테이블, 값은 가지지 않고 코드만 가진다.
+    -- 1. 실제 테이블의 특정 컬럼만 출력할 때  <- 보안
+    -- 2. 복잡한 쿼리를 한 번 만들어서 실행    <- 복잡한 JOIN 쿼리를 단순화 할 수 있다. 
+
+-- view를 실습하기 위한 샘플 테이블: emp02
+drop table EMP02 cascade constraints;
+
+create table EMP02
+as
+select eno, ename, salary, commission, job, hiredate, dno
+from employee
+where salary > 1500;
+
+select * from emp02;
+
+create table dept02
+as
+select * from department;
+
+select * from dept02;
+
+-- 기존의 원본테이블: employee, department -> emp01, dept01
+    -- 필드명, 값만 복사됨
+    -- 컬럼에 부여된 제약 조건은 복사되지 않음 <- Alter Table을 사용해서 제약 조건 추가
+
+select * from user_constraints where table_name in ('EMPLOYEE', 'DEPARTMENT');
+select * from user_constraints where table_name in ('EMP02', 'DEPT02');
+
+-- 1. DEPT02 테이블의 dno(Primary Key)
+-- 2. EMP01 테이블의 eno(Primary Key), dno(Foreign Key) -> dept02(dno)
+
+alter table DEPT02
+add constraints PK_DEPT02_DNO primary key (dno);
+
+alter table EMP02
+add constraints PK_EMP02_ENO primary key (eno);
+
+alter table EMP02
+add constraints FK_EMP02_DNO foreign key (dno) references dept02(dno);
+
+-- VIEW 생성 1. 실제 테이블의 중요 정보를 감추고 출력, 보안을 향상할 수 있다.
+    -- as 다음에 select 코드를 가지고 있음
+select * from emp02;    -- 실제 테이블: emp02
+
+-- 뷰 생성: 실제 테이블의 값을 가지는 것이 아니라 실행 코드만 가진다.
+create view v_emp02
+as
+select ename, job, dno
+from emp02;
+
+-- 뷰 실행:
+select 컬럼명 from 테이블명[뷰명]
+select * from v_emp02;
+
+-- 데이터 사전: user_테이블     <- 시스템의 정보를 저장되어 있는 테이블
+select * from user_views;
+
+-- 2. 사용의 편의성, 복잡한 구문을 view를 생성해서 저장시켜 두고 실행    <- JOIN
+
+-- 두 테이블을 join해서 월급이 2500 이상인 사원 정보를 출력
+create view v_join
+as
+select ename, job, salary, dname, loc
+from emp02 e
+    join dept02 d
+    on e.dno = d.dno
+where salary >= 2500;
+
+select * from v_join;
+select * from employee;
+select * from department;
+-- employee, department 테이블의 부서별로 최소 월급을 받는 사원 이름, 사원의 직책, 부서명, 부서 위치를 출력하되
+-- 최소 월급이 1500 이상인 사원 정보를 출력, 부서 번호 20번 제외
+-- 뷰 안에 쿼리를 저장하고 뷰를 실행해서 출력     <- JOIN, group by, where, having, subquery
+
+-- 부서별로 최소 월급을 받는 사원 정보를 출력하는 view, 20번 부서는 제외됨
+create view v_emp
+as
+select ename 사원이름, job 직책, dname 부서명, loc 부서위치
+    from employee e
+    JOIN department d
+    on e.dno = d.dno
+where salary in(
+    select min(salary) from employee
+    where dno != 20
+    group by dno
+    having min(salary) > 900
+    );
+    
+-- 최소월급 900 이상 안 넣어서 수정함
+create or replace view v_emp
+as
+select ename 사원이름, job 직책, dname 부서명, loc 부서위치, d.dno 부서번호
+    from employee e
+    JOIN department d
+    on e.dno = d.dno
+where salary in(
+    -- 부서별로 최소 월급
+    select min(salary) from employee
+    where dno != 20
+    group by dno
+    having min(salary) > 900
+    );
+
+select * from v_emp;
+desc v_emp;
 
 
-                                                                                                                                                                                                                                        
+create or replace view v_join3
+as
+select ename 사원이름, job 직책, dname 부서명, loc 부서위치, d.dno 부서번호
+    from employee e
+    JOIN department d
+    on e.dno = d.dno
+where salary in(
+    -- 부서별로 최소 월급
+    select min(salary) from employee
+    where dno != 20
+    group by dno
+    having min(salary) > 900
+)                             
+order by ename desc;
+
+select * from v_join3
+
+-- view에 as 블락에 select문이 옴
+    -- 실제 값을 가지고 있지 않음. select 코드만 들어있음
+    -- 실제 테이블의 컬럼에 잘 매칭될 경우
+    -- insert, update, delete를 view를 통해서 할 수 있다. 단, 실제 테이블에 각 컬럼에 제약 조건에 맞을 때 가능
+    
+select * from emp02;
+
+-- view 삭제
+drop view v_test01;
+
+-- view 생성
+create view v_test01
+as
+select eno, ename, dno
+from employee
+    
+-- view 실행
+select * from v_test01;
+
+-- view에 값을 넣을 수 있다 -> 실제 테이블에 값이 들어감
+insert into v_test01 (eno, ename, dno)
+values (8080, 'HONG', 30);
+
+commit;
+    
+-- view를 사용해서 값을 수정: update     <- where 조건을 반드시 사용
+update v_test01
+set ename = 'KIM'
+where eno = 8080;
+
+commit;
+
+-- view를 사용해서 값을 삭제: delete <- where 조건을 반드시 사용해야 하고 컬럼명은 primary key가 들어가 컬럼
+    
+delete v_test01
+where eno = 8080;
+
+commit;
+
+select * from emp02;
+
+-- v_test02: insert(안됨), update(가능), delete(가능) -> 실제 테이블의 제약 조건에 잘 맞아야 한다.
+create view v_test02
+as
+select eno, ename, salary
+from emp02;
+    
+insert into v_test02 (eno, ename, salary)
+values (9090, 'SIM', 3500);
+
+-- 테이블의 특정 컬럼에 not null 제약 조건 추가
+alter table emp02
+modify dno not null;
+
+delete v_test02
+where eno = 9090;

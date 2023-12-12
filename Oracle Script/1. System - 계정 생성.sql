@@ -21,6 +21,9 @@ temporary tablespace TEMP;
 -- 2. 계정에 권한을 부여하기: connect - 접속, resource - 객체 생성, 수정, 삭제
 grant resource, connect to C##HR2;
 
+-- System 계정에서 HR 계정에게 create view 권한을 부여함.
+grant create view to C##HR;
+
 -- 3. 테이블 스페이스에서 사용량 할당
 alter user C##HR2 quota unlimited on USERS;
 
