@@ -33,6 +33,9 @@
         
         DEFAULT: 제약 조건은 아니지만 제약 조건처럼 사용됨.
          - 컬럼에 값을 넣지 않으면 default로 설정된 값이 등록됨.
+         
+        제약 조건을 출력하는 데이터 사전: user_constraints
+            select * from user_constraints where table_name in ('테이블명');
 */
 
 select * from employee;     -- employee 테이블의 dno 컬럼은 참조한다(Foreign Key): 자식 테이블 
