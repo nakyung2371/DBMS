@@ -18,7 +18,7 @@ where hiredate like '81_%';
 -- 3.
 select ename 이름, job 담당업무, salary 급여
 from employee
-where job in ('CLERK', 'SALESMAN') and salary in (1600, 950) or salary <> 1300;
+where job in ('CLERK', 'SALESMAN') and salary not in (1600, 950, 1300);
 
 -- 4.
 select trunc(months_between(sysdate, to_date('00/12/12', 'YY/MM/DD'))) 개월수
