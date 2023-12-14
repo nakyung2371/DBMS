@@ -18,10 +18,12 @@ where hiredate like '81_%';
 -- 3.
 select ename 이름, job 담당업무, salary 급여
 from employee
-where job in ('CLERK', 'SALESMAN') and salary not in (1600, 950, 1300);
+where job in ('CLERK', 'SALESMAN')
+      and salary not in (1600, 950, 1300);
 
 -- 4.
-select trunc(months_between(sysdate, to_date('00/12/12', 'YY/MM/DD'))) 개월수
+select trunc(months_between(
+            sysdate, to_date('00/12/12', 'YY/MM/DD'))) 개월수
 from dual;
 
 -- 5.
@@ -35,13 +37,14 @@ order by dno asc;
 select eno 사원번호, ename 이름
 from employee
 where salary > (
-    select round(avg(salary), 2)
+    select avg(salary)
     from employee
     )
 order by salary asc;
 
 -- 7. 
-select ename 사원이름, e.dno 부서번호, dname 부서명, loc 부서위치
+select ename 사원이름, e.dno 부서번호,
+       dname 부서명, loc 부서위치
     from employee e
     JOIN department d
     on e.dno = d.dno
@@ -51,7 +54,8 @@ order by ename desc;
 -- 8.
 create view v_join
 as
-select ename 사원이름, job 직책, dname 부서명, loc 부서위치
+select ename 사원이름, job 직책,
+       dname 부서명, loc 부서위치
     from employee e
     JOIN department d
     on e.dno = d.dno
@@ -106,4 +110,6 @@ commit;
 delete emp50
 where job = 'MANAGER';
 commit;
+
+select * from emp50;
 
