@@ -7,3 +7,6 @@ create table mem (
 );
 
 select * from mem;
+
+select * from tab;
+select * from guestboard;
