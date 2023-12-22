@@ -14,10 +14,14 @@ Create Table freeboard (
 ); 
 
 select * from freeboard
-order by ID asc;
+order by ID desc;
 
 delete freeboard;
+
 select * from freeboard;
+
 desc freeboard;
+
 drop table freeboard;
 commit;
+
