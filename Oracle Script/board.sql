@@ -4,7 +4,7 @@
 create table board(
     seq number(5) not null primary key,
     title varchar2(200) null,
-    write varchar2(20) null,
+    write varchar2(200) null,
     content varchar2(2000) null,
     regdate date default sysdate null,
     cnt number(5) default 0 null
@@ -44,6 +44,8 @@ values('user', '1234', '»ç¿ëÀÚ', 'Users');
 select * from users;
 rollback;
 commit;
-
+drop table board;
 desc board;
+
+select * from board order by seq desc
 
